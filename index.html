@@ -430,19 +430,7 @@
   <script>
     'use strict';
 
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzlg7OCMc_9QBuhOXQK84q_36xsnENqPUTAGIRqftm8bUw_erXe-eD2qBJTbMbXk7W4_w/exec';
-
-    // GASのAPIを呼ぶ共通関数
-    async function callGas(action, payload) {
-      const res = await fetch(GAS_URL, {
-        method: 'POST',
-        // ★text/plain にするのが重要。JSONにするとCORSのプリフライトで失敗する
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(Object.assign({ action: action }, payload))
-      });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return await res.json();
-    }
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxNko8H_hG9bi9d3ykIOBCLlSeYva9BEh5Mb8UeWV-Nkez27I7iL9kNSrwhH8Q8qld7UQ/exec';
 
     //エレメント取得
     const homeArea = document.getElementById('homeArea');     //ホームエリア
@@ -774,10 +762,28 @@
           conf: Math.round(tracker.durations.入力確認)
       };
 
-      //GASにデータを送信
-      callGas('save', { formData: formData, timeData: timeData })
-        .then(onSuccess)
-        .catch((err) => onFailure(err.message || err));
+      sendToServer(formData, timeData);
+    }
+
+    // GASのページ内なら google.script.run、GitHub Pages なら fetch で GAS に送る
+    function sendToServer(formData, timeData) {
+      const inGas = (typeof google !== 'undefined' && google.script && google.script.run);
+      if (inGas) {
+        google.script.run
+          .withSuccessHandler(onSuccess)
+          .withFailureHandler(onFailure)
+          .insertToSheet(formData, timeData);
+      } else {
+        fetch(GAS_URL, {
+          method: 'POST',
+          // text/plain にすると CORS のプリフライトが発生せず GAS で受け取れる
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ formData, timeData })
+        })
+          .then(res => res.json())
+          .then(onSuccess)
+          .catch(err => onFailure(err && err.message ? err.message : err));
+      }
     }
 
     //送信成功
