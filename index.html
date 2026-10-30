@@ -430,7 +430,7 @@
   <script>
     'use strict';
 
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxNko8H_hG9bi9d3ykIOBCLlSeYva9BEh5Mb8UeWV-Nkez27I7iL9kNSrwhH8Q8qld7UQ/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbw5peTp8AT3HyqQLwcLgGZllzmuTel3d25E2ytQAvG_tbQlJ1I30ghgy8Up05Sa8-vjjA/exec';
 
     //エレメント取得
     const homeArea = document.getElementById('homeArea');     //ホームエリア
@@ -580,13 +580,13 @@
         inputArea.style.display = 'block';
         hamburgerMenu.style.display= 'none';
         dummyArea.style.display = 'none';
-        stepName = '情報入力';
+        changeStep('情報入力');
       });
       groupB.addEventListener('click', function() {
         menuArea.style.display = 'none';
         dummyArea.style.display = 'block';
         dummyMessage.textContent = 'ここはグループBです。';
-        stepName = 'ダミー';
+        changeStep('ダミー');
         menu.classList.remove("is-open");
         hamburger.classList.remove("menu-open");
         
@@ -598,7 +598,7 @@
         menuArea.style.display = 'none';
         dummyArea.style.display = 'block';
         dummyMessage.textContent = 'ここはグループCです。';
-        stepName = 'ダミー';
+        changeStep('ダミー');
         menu.classList.remove("is-open");
         hamburger.classList.remove("menu-open");
         
@@ -658,7 +658,7 @@
       //画面切り替えmain→conf
       inputArea.style.display = 'none';
       confirmArea.style.display = 'block';
-      stepName = '入力確認';
+      changeStep('入力確認');
     });
 
     //修正
@@ -712,20 +712,22 @@
         入力確認: 0
       }
     };
-    function updateStepName(stepName){
+
+    function updateStepName(newStepName){
       const now = new Date();
-      if(tracker.nowName && tracker.timeStart) {
-        const elapsedSeconds = ((now - tracker.timeStart) / 1000).toFixed(2);
-        if(tracker.durations.hasOwnProperty(tracker.nowName)) {
+      if (tracker.nowName && tracker.timeStart) {
+        const elapsedSeconds = (now - tracker.timeStart) / 1000;  // 数値のまま足す
+        if (tracker.durations.hasOwnProperty(tracker.nowName)) {
           tracker.durations[tracker.nowName] += elapsedSeconds;
         }
       }
-      tracker.nowName = stepName;
+      tracker.nowName = newStepName;
       tracker.timeStart = now;
     }
 
     //全体記録送信
     function saveData(result) {
+      updateStepName(stepName);
       //全体の実行時間計測
       const endTime = new Date();
       const executionTimeSec = ((endTime - startTimeWhole) / 1000).toFixed(2);
