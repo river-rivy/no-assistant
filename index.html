@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <base target="_top">
+    <style>
+      /* --- 高齢者向けスマートフォンUIスタイル --- */
+      
+      /* 全体設定 */
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Hiragino Kaku Gothic ProN", "メイリオ", sans-serif;
+        font-size: 18px; /* 大きめのフォントサイズ */
+        line-height: 1.6;
+        color: #222222; /* コントラストの強い濃い文字色 */
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 16px;
+      }
+
+      /* コンテナ（カード風デザインで視線を集める） */
+      #homeArea, #menuArea, #dummyArea, #inputArea, #confirmArea, #compArea{
+        background-color: #ffffff;
+        border: 1px solid #cccccc;
+        border-radius: 12px;
+        padding: 20px 16px;
+        max-width: 500px;
+        margin: 100px auto 20px auto;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .groName {
+        font-size: 200%;
+      }
+
+      /* リタイアボタン */
+      #retireBtn {
+        position: fixed; 
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: inline-block;
+        text-decoration: none;
+        background: #e51616;
+        color: #FFF;
+        width: 120px;
+        height: 120px;
+        line-height: 120px;
+        border-radius: 50%;
+        text-align: center;
+        font-weight: bold;
+        overflow: hidden;
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.29);
+        border-bottom: solid 3px #A02B31;
+        transition: .4s;
+      }
+      #retireBtn :active {
+        transform: translateY(2px);
+        box-shadow: 0 0 1px rgba(0, 0, 0, 0.15);
+        border-bottom: none;
+      }
+
+      /* 見出し・テキスト */
+      h1 {
+        font-size: 22px;
+        color: #000000;
+        text-align: center;
+        margin-top: 0;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 16px;
+      }
+
+      /* ハンバーガーメニュー */
+      .hamburger {
+        font-family: sans-serif;
+      }
+
+      .menu-toggle {
+        position: fixed;
+        top: 0;
+        left: 2px;
+        z-index: 1001;
+        width: 55px;
+        height: 35px;
+        padding: 5px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+
+        background-color: #0055b8;
+        border: none;
+        cursor: pointer;
+      }
+
+      .menu-toggle span {
+        display: block;
+        width: 100%;
+        height: 3px;
+        background-color: #FFF;
+      }
+
+      .menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        box-sizing: border-box;
+        padding: 55px 14px 20px;
+
+        background-color: #0055b8;
+        
+        /* 初期状態は非表示 */
+        transform: translateX(-100%);
+        visibility: hidden;
+        transition: transform 0.3s ease,
+                    visibility 0.3s ease;
+      }
+
+      /* メニュー表示中 */
+      .menu.is-open {
+        transform: translateX(0);
+        visibility: visible;
+      }
+      
+      /* 閉じるボタン */
+      .menu-close {
+        position: absolute;
+        top: 8px;
+        left: 12px;
+        
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: #fff;
+        
+        font-size: 32px;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+      }
+      
+      /* リンク一覧 */
+      .menu ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      
+      .menu li {
+        margin-top: 15px;
+        margin-bottom: 5px;
+      }
+      
+      .menu div {
+        color: #fff;
+        font-size: 32px;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      
+      /* メニュー表示中は三本線を隠す */
+      .menu-open .menu-toggle {
+        display: none;
+      }
+
+      /* フォームグループ */
+      .form-group {
+        margin-bottom: 24px;
+      }
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      /* 入力フィールド */
+      input[type="text"] {
+        width: 100%;
+        min-height: 52px; /* タップしやすい高さ */
+        font-size: 18px;
+        padding: 10px 12px;
+        border: 2px solid #666666; /* くっきりした枠線 */
+        border-radius: 8px;
+        background-color: #ffffff;
+        margin-bottom: 8px;
+      }
+      input[type="text"]:focus {
+        border-color: #0055b8;
+        outline: 3px solid rgba(0, 85, 184, 0.3);
+      }
+
+      /* 名前欄（姓・名を横並びにするレイアウト） */
+      .name-group {
+        display: flex;
+        gap: 12px;
+      }
+      .name-group > div {
+        flex: 1;
+      }
+
+      /* チェックボックス（押しやすく巨大化） */
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 20px;
+        font-weight: bold;
+        padding: 12px;
+        background-color: #eef4ff;
+        border: 2px solid #0055b8;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-bottom: 16px;
+      }
+      input[type="checkbox"] {
+        width: 28px;
+        height: 28px;
+        accent-color: #0055b8;
+      }
+
+      /* ファイル選択 */
+      input[type="file"] {
+        font-size: 16px;
+        margin-bottom: 12px;
+        width: 100%;
+      }
+
+      /* 画像プレビュー */
+      #preview, #confirmPhoto {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        margin-top: 10px;
+        display: none;
+      }
+
+      /* ボタンデザイン */
+      button, .btn {
+        display: block;
+        width: 100%;
+        min-height: 56px; /* 指で押しやすい十分な高さ */
+        font-size: 20px;
+        font-weight: bold;
+        color: #ffffff;
+        background-color: #0055b8; /* 視認性の高い青 */
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        box-shadow: 0 4px 0 #003370; /* 立体感をつけて「押せる」ことを明示 */
+        transition: transform 0.1s, box-shadow 0.1s;
+      }
+      button:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #003370;
+      }
+      button:disabled {
+        background-color: #cccccc;
+        box-shadow: none;
+      }
+
+      /* 確認画面のボタンエリア（横並び） */
+      .btn2 {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+      }
+      #backbtn {
+        background-color: #666666;
+        box-shadow: 0 4px 0 #333333;
+      }
+
+      /* 確認画面の入力内容表示 */
+      .confirm-item {
+        background-color: #f0f0f0;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+      }
+      .confirm-label {
+        font-size: 14px;
+        color: #555555;
+        margin-bottom: 4px;
+      }
+      .confirm-value {
+        font-size: 20px;
+        font-weight: bold;
+        word-break: break-all;
+      }
+
+      /* エラー・警告メッセージ */
+      #agreementMessage, #statusMessage {
+        color: #d93025;
+        font-weight: bold;
+        margin-top: 12px;
+        text-align: center;
+      }
+
+      /* --- アクティブな入力エリアのハイライトスタイル --- */
+      .highlight-active {
+        background-color: #fffde7 !important; /* 目立ちやすい薄い黄色 */
+        border: 3px solid #fbc02d !important;
+        box-shadow: 0 0 10px rgba(251, 192, 45, 0.5) !important;
+        color: #000000 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="homeArea">
+      <!--ホーム-->
+      <p>これから実験を始めます。了承いただける場合は、「同意する」にチェックをいれてください。</p>
+      <form action="#" id="agreementForm">
+        <label><input type="checkbox" id="agreementCheck">同意する</label>
+        <div id="agreementMessage"></div>
+        <button type="submit" id="startBtn">はじめる</button>
+      </form>
+    </div>
+
+    <div id="menuArea" style="display: none;">
+      <!--ハンバーガー選択画面-->
+      <div id="MenuText">
+        <p>あなたは、</p>
+        <p class="groName">グループA</p>
+        <p>です。</p>
+        <p>左上のメニューバーから、あなたのグループを選択して、入力ページに進んでください。</p>
+      </div>
+    </div>
+    
+    <div class="hamburger" id="hamburgerMenu" style="display: none;">
+      <button type="button" class="menu-toggle" aria-label="メニューを開く" aria-expanded="false" aria-controls="menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <nav id="menu" class="menu" aria-hidden="true">
+        <button type="button" class="menu-close" aria-label="メニューを閉じる">×</button>
+        <ul>
+          <li><div id="groupA">グループA</div></li>
+          <li><div id="groupB">グループB</div></li>
+          <li><div id="groupC">グループC</div></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div id="dummyArea" style="display: none;">
+      <!--ダミーページ-->
+      <div id="dummyMessage" class="groName">ここはグループ■です</div>
+      <div>違うページが選択されました。メニューからグループAのページを選択してください。</div>
+    </div>
+
+    <div id="inputArea" style="display: none;">
+      <!-- 入力欄 -->
+      <form action="#" id="inputForm">
+        <!--名前-->
+        <div class="form-group" id="group-name">
+          <p>お名前を入力してください。</p>
+          <label for="lname">姓</label>
+          <input type="text" id="lname" class="" placeholder="姓" required>
+          <label for="fname">名</label>
+          <input type="text" id="fname" class="" placeholder="名" required>
+        </div>
+
+        <!--年齢-->
+        <div class="form-group" id="group-year">
+          <label>現在の年齢を入力してください。</label>
+          <input type="text" id="year" class="" placeholder="年齢" pattern="^[0-9\uff10-\uff19]+$" inputmode="numeric" required> 歳
+        </div>
+
+        <!--写真-->
+        <div class="form-group" id="group-photo">
+          <label>写真をアップロードしてください。</label>
+          <input type="file" id="uploadPhoto" accept="image/png, image/jpeg" class="" required>
+          <img id="preview" src=""> <!--プレビュー画像表示欄-->
+        </div>
+
+        <button type="submit" class="btn" id="confBtn">確認画面へ進む</button>
+      </form>
+    </div>
+
+    <div id="confirmArea" style="display: none;">
+      <!-- 内容確認 -->
+      <p>入力内容の確認</p>
+      <p>以下の内容で送信してもよろしいですか？</p>
+
+      <div class="confirm-item">
+        <div class="confirm-label">お名前</div>
+        <span id="confirmLname" class="confirm-value"></span>
+        <span id="confirmFname" class="confirm-value"></span>
+      </div>
+
+      <div class="confirm-item">
+        <div class="confirm-label">年齢</div>
+        <div class="confirm-value"><span id="confirmYear"></span> 歳</div>
+      </div>
+
+      <div class="confirm-item">
+        <div class="confirm-label">送信する写真</div>
+        <img id="confirmPhoto" src="" alt="送信写真">
+      </div>
+
+      <div class="btn2">
+        <button id="backBtn" class="">修正する</button>
+        <button id="submitBtn" class="">送信</button>
+      </div>
+    </div>
+    <div id="statusMessage"></div>
+
+    <div id="compArea" style="display: none;">
+      <!--終了-->
+      <div id="compStatus"><h1>以上で実験は終了です</h1></div>
+      <div id="compMessage"><p>ご協力ありがとうございました。スタッフを呼んでください。</p></div>
+    </div>
+
+    <!--リタイアボタン-->
+    <div id="retireArea" style="display: block;">
+      <button id="retireBtn" type="button" formnovalidate>中止する</button>
+    </div>
+  </body>
+
+  <script>
+    'use strict';
+
+    //エレメント取得
+    const homeArea = document.getElementById('homeArea');     //ホームエリア
+    const menuArea = document.getElementById('menuArea');     //メニューエリア
+    const dummyArea = document.getElementById('dummyArea');     //ダミーエリア
+    const inputArea = document.getElementById('inputArea');     //入力エリア
+    const confirmArea = document.getElementById('confirmArea'); //内容確認エリア
+    const compArea = document.getElementById('compArea');     //終了エリア
+    const hamburgerMenu = document.getElementById('hamburgerMenu');   //ハンバーガーメニュー
+
+    const agreementForm = document.getElementById('agreementForm');   //同意フォーム
+    const agreementCheck = document.getElementById('agreementCheck');     //同意するチェック
+    const startBtn = document.getElementById('startBtn');     //始めるボタン
+    const agreementMessage = document.getElementById('agreementMessage');     //同意してメッセージ
+
+    const dummyMessage = document.getElementById('dummyMessage');     //ダミーページの警告メッセージ
+
+    const inputForm = document.getElementById('inputForm');     //フォームのID
+    const lname = document.getElementById('lname');     //苗字　入力
+    const fname = document.getElementById('fname');     //名前　入力
+    const year = document.getElementById('year');     //年齢　入力
+    const uploadPhoto = document.getElementById('uploadPhoto');     //写真 　入力
+    const preview = document.getElementById('preview');     //写真　入力エリア　プレビュー
+
+    const confirmLname = document.getElementById('confirmLname');     //苗字　内容確認
+    const confirmFname = document.getElementById('confirmFname');     //名前　内容確認
+    const confirmYear = document.getElementById('confirmYear');     //年齢　内容確認
+    const confirmPhoto = document.getElementById('confirmPhoto');       //写真　内容確認
+
+    const confBtn = document.getElementById('confBtn');     //確認遷移ボタン
+    const backBtn = document.getElementById('backBtn');     //修正ボタン
+    const submitBtn = document.getElementById('submitBtn');     //送信ボタン
+    const statusMessage = document.getElementById('statusMessage');     //送信中メッセージ
+
+    const compStatus = document.getElementById('compStatus');   //終了時のステータス（成功か中断か）
+    const compMessage = document.getElementById('compMessage');   //終了時のメッセージ
+
+    const retireArea = document.getElementById('retireArea');   //リタイアエリア
+    const retireBtn = document.getElementById('retireBtn');   //リタイアボタン
+
+    const aiArea = document.getElementById('aiArea');   //AIメッセージエリア
+    const voiceBtn = document.getElementById('voiceBtn');   //AI質問ボタン
+    const aiText = document.getElementById('aiText');   //アドバイス表示
+
+    let formData = {};      //フォームデータを保持
+    let timeData = {};      //時間計測群
+    let aiLogData = {};     //AI会話ログ
+    let missTapCount = 0;     //エリア外タップカウント変数
+    let insideMissTapCount = 0;   //エリア内ミスタップカウント変数
+    let befroreClick = null;    //エリア内ミスじゃないタップ
+    let startTimeWhole = new Date();     //実行時間計測
+    let collaboratorId = null;
+    let stepName = 'ホーム';    //攻略ステップの名前
+
+    //ID発行
+    function formatDateNum(date) {
+      const parts = new Intl.DateTimeFormat('ja-JP', {
+        timeZone: 'Asia/Tokyo',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hourCycle: 'h23'
+      }).formatToParts(date);
+      
+      const values = {};
+      parts.forEach(part => {
+        values[part.type] = part.value;
+      });
+      
+      return values.month + values.day
+      + values.hour + values.minute + values.second;
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+      const dateNum = formatDateNum(new Date());
+      const randomNum = Math.floor(Math.random() * 90) + 10;
+      collaboratorId = dateNum + randomNum.toString();
+      //alert('IDが発行されました：' + collaboratorId);
+    });
+
+    //エリア外ミスタップカウンター
+    document.addEventListener('click', (e) => {
+      if(!e.target.closest('input, button, label')) {
+        missTapCount++;
+      }
+    });
+
+    //エリア内ミスタップカウンター
+    document.addEventListener('mousedown', () => {
+      befroreClick = document.activeElement;
+    }, { passive: true });
+    document.addEventListener('click', (e) => {
+      const targetElement = e.target.closest('input, button, label');
+      if(!targetElement) return;
+      if(befroreClick === targetElement) {
+        insideMissTapCount++;
+      }
+    });
+
+
+    //home→menu
+    startBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      if(agreementCheck.checked){
+        //画面切り替え
+        homeArea.style.display = 'none';
+        menuArea.style.display = 'block';
+        hamburgerMenu.style.display = 'block';
+        stepName = 'メニュー';
+      }else {
+        agreementMessage.textContent = '同意するにチェックを入れてください';
+      }
+    })
+
+    //メニュー遷移(menu→main/dummy)
+    document.addEventListener("DOMContentLoaded", () => {
+      const hamburger = document.querySelector(".hamburger");
+      const toggleBtn = document.querySelector(".menu-toggle");
+      const closeBtn = document.querySelector(".menu-close");
+      const menu = document.querySelector("#menu");
+      const groupA = document.getElementById("groupA");
+      const groupB = document.getElementById("groupB");
+      const groupC = document.getElementById("groupC");
+
+      toggleBtn.addEventListener("click", function() {
+        menu.classList.add("is-open");
+        hamburger.classList.add("menu-open");
+
+        toggleBtn.setAttribute("aria-expanded", "true");
+        toggleBtn.setAttribute("aria-label", "メニューを閉じる");
+        menu.setAttribute("aria-hidden", "false");
+      });
+
+      closeBtn.addEventListener("click", function() {
+        menu.classList.remove("is-open");
+        hamburger.classList.remove("menu-open");
+        
+        toggleBtn.setAttribute("aria-expanded", "false");
+        toggleBtn.setAttribute("aria-label", "メニューを開く");
+        menu.setAttribute("aria-hidden", "true");
+      });
+
+      groupA.addEventListener('click', function() {
+        menuArea.style.display = 'none';
+        inputArea.style.display = 'block';
+        hamburgerMenu.style.display= 'none';
+        dummyArea.style.display = 'none';
+        stepName = '情報入力';
+      });
+      groupB.addEventListener('click', function() {
+        menuArea.style.display = 'none';
+        dummyArea.style.display = 'block';
+        dummyMessage.textContent = 'ここはグループBです。';
+        stepName = 'ダミー';
+        menu.classList.remove("is-open");
+        hamburger.classList.remove("menu-open");
+        
+        toggleBtn.setAttribute("aria-expanded", "false");
+        toggleBtn.setAttribute("aria-label", "メニューを開く");
+        menu.setAttribute("aria-hidden", "true");
+      });
+      groupC.addEventListener('click', function() {
+        menuArea.style.display = 'none';
+        dummyArea.style.display = 'block';
+        dummyMessage.textContent = 'ここはグループCです。';
+        stepName = 'ダミー';
+        menu.classList.remove("is-open");
+        hamburger.classList.remove("menu-open");
+        
+        toggleBtn.setAttribute("aria-expanded", "false");
+        toggleBtn.setAttribute("aria-label", "メニューを開く");
+        menu.setAttribute("aria-hidden", "true");
+      });
+    });
+
+    //main内処理
+    function changeStep(newStepName) {
+      updateStepName(newStepName);
+      stepName = newStepName;
+    }
+
+    lname.addEventListener('focus', function(e) {
+      changeStep('姓');
+    });
+    fname.addEventListener('focus', function(e) {
+      changeStep('名');
+    });
+    year.addEventListener('focus', function(e) {
+      changeStep('年齢');
+    });
+    uploadPhoto.addEventListener('focus', function(e) {
+      changeStep('写真');
+    })
+    
+    //写真　プレビュー
+    uploadPhoto.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if(file) {
+        const fileURL = URL.createObjectURL(file);
+        preview.src = fileURL;
+        preview.style.display = 'block';
+        }
+      });
+
+    //写真　確認で表示
+    confBtn.addEventListener('click', function() {
+      const file = uploadPhoto.files[0];
+      if(file) {
+        const fileURL = URL.createObjectURL(file);
+        confirmPhoto.src = fileURL;
+        confirmPhoto.style.display = 'block';
+        }
+    });
+
+    //入力確認へすすむ
+    inputForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      confirmLname.textContent = document.getElementById('lname').value;
+      confirmFname.textContent = document.getElementById('fname').value;
+      confirmYear.textContent = document.getElementById('year').value;
+
+      //画面切り替えmain→conf
+      inputArea.style.display = 'none';
+      confirmArea.style.display = 'block';
+      stepName = '入力確認';
+    });
+
+    //修正
+    backBtn.addEventListener('click', function() {
+      confirmArea.style.display = 'none';
+      inputArea.style.display = 'block';
+    });
+
+    //送信
+    submitBtn.addEventListener('click', function() {
+      const result = '成功';
+
+      statusMessage.textContent = '送信中...';
+      statusMessage.style.color = 'black';
+      submitBtn.disabled = true;  //連打防止
+
+      saveData(result);
+    });
+
+    //リタイアボタン押下処理
+    retireBtn.addEventListener('click', function(e) {
+      const attention = confirm('実験を中断しますか？');
+      const endTime = new Date();
+      const executionTimeSec = ((endTime - startTimeWhole) / 1000).toFixed(2);
+      const result = stepName + 'で中断';/* ステップ名＋中断 */
+
+      if(!attention){
+        e.preventDefault();
+      }else {
+        saveData(result);
+
+        //メッセージ変更
+        compStatus.textContent = '実験が中断されました';
+        compMessage.textContent = 'スタッフを呼んでください。';
+      }
+    });
+
+    //だいぶありえない時間計測ズ
+    const tracker = {
+      nowName: stepName,
+      timeStart: new Date(),
+      durations: {
+        ホーム: 0,
+        メニュー: 0,
+        ダミー: 0,
+        情報入力: 0,
+        姓: 0,
+        名: 0,
+        年齢: 0,
+        写真: 0,
+        入力確認: 0
+      }
+    };
+    function updateStepName(stepName){
+      const now = new Date();
+      if(tracker.nowName && tracker.timeStart) {
+        const elapsedSeconds = ((now - tracker.timeStart) / 1000).toFixed(2);
+        if(tracker.durations.hasOwnProperty(tracker.nowName)) {
+          tracker.durations[tracker.nowName] += elapsedSeconds;
+        }
+      }
+      tracker.nowName = stepName;
+      tracker.timeStart = now;
+    }
+
+    //全体記録送信
+    function saveData(result) {
+      //全体の実行時間計測
+      const endTime = new Date();
+      const executionTimeSec = ((endTime - startTimeWhole) / 1000).toFixed(2);
+
+      //空欄を「-」に置き換え
+      const inputs = document.querySelectorAll("#lname, #fname, #year");
+        inputs.forEach(function(input) {
+          if (input.value.trim() === "") {
+            input.value = "-";
+          }
+        });
+
+      formData = {
+          collaboratorId: collaboratorId,
+          lname: document.getElementById('lname').value,
+          fname: document.getElementById('fname').value,
+          year: document.getElementById('year').value,
+          result: result,
+          executionTime: executionTimeSec,
+          outsideMisstaps: missTapCount,
+          insideMisstaps: insideMissTapCount
+        };
+
+      timeData = {
+          collaboratorId: collaboratorId,
+          home: Math.round(tracker.durations.ホーム),
+          menu: Math.round(tracker.durations.メニュー),
+          dummy: Math.round(tracker.durations.ダミー),
+          main: Math.round(tracker.durations.情報入力),
+          lname: Math.round(tracker.durations.姓),
+          fname: Math.round(tracker.durations.名),
+          year: Math.round(tracker.durations.年齢),
+          photo: Math.round(tracker.durations.写真),
+          conf: Math.round(tracker.durations.入力確認)
+      };
+
+      //GASにデータを送信
+      google.script.run
+        .withSuccessHandler(onSuccess)
+        .withFailureHandler(onFailure)
+        .insertToSheet(formData,timeData);
+    }
+
+    //送信成功
+    function onSuccess(response) {
+      if (response.status === 'success') {
+        statusMessage.textContent = '送信完了';
+        
+        //画面切り替え
+        retireBtn.disabled = true;
+        retireArea.style.display = 'none';
+        homeArea.style.display = 'none';
+        menuArea.style.display = 'none';
+        dummyArea.style.display = 'none';
+        inputArea.style.display = 'none';
+        confirmArea.style.display = 'none';
+        compArea.style.display = 'block';
+      } else {
+        onFailure(response.message);
+      }
+    }
+
+    //送信失敗
+    function onFailure(error) {
+      statusMessage.textContent = '送信に失敗しました。　' + error;
+      statusMessage.style.color = 'red';
+    }
+
+  </script>
+</html>
