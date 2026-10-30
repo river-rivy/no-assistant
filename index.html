@@ -430,6 +430,20 @@
   <script>
     'use strict';
 
+    const GAS_URL = 'https://script.google.com/a/macros/sit.shonan-it.ac.jp/s/AKfycbyST19h06TAMDVtJklkwRG2IAzEPPgOl05Ai-oU9tAeehTOMlzdpceCtMk1TTg_rU44qg/exec';
+
+    // GASのAPIを呼ぶ共通関数
+    async function callGas(action, payload) {
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        // ★text/plain にするのが重要。JSONにするとCORSのプリフライトで失敗する
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(Object.assign({ action: action }, payload))
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    }
+
     //エレメント取得
     const homeArea = document.getElementById('homeArea');     //ホームエリア
     const menuArea = document.getElementById('menuArea');     //メニューエリア
@@ -761,10 +775,9 @@
       };
 
       //GASにデータを送信
-      google.script.run
-        .withSuccessHandler(onSuccess)
-        .withFailureHandler(onFailure)
-        .insertToSheet(formData,timeData);
+      callGas('save', { formData: formData, timeData: timeData })
+        .then(onSuccess)
+        .catch((err) => onFailure(err.message || err));
     }
 
     //送信成功
