@@ -302,7 +302,7 @@
       }
 
       /* エラー・警告メッセージ */
-      #agreementMessage, #statusMessage {
+      #agreementMessage, #statusMessage, #confMessage {
         color: #d93025;
         font-weight: bold;
         margin-top: 12px;
@@ -321,7 +321,8 @@
   <body>
     <div id="homeArea">
       <!--ホーム-->
-      <p>これから実験を始めます。了承いただける場合は、「同意する」にチェックをいれてください。</p>
+      <p>体験会を始めます。「同意する」にチェックを入れて、「はじめる」を押してください。</p>
+      <font color="red">中断する場合は右上の中断ボタンを押してください。</font>
       <form action="#" id="agreementForm">
         <label><input type="checkbox" id="agreementCheck">同意する</label>
         <div id="agreementMessage"></div>
@@ -332,10 +333,9 @@
     <div id="menuArea" style="display: none;">
       <!--ハンバーガー選択画面-->
       <div id="MenuText">
-        <p>あなたは、</p>
         <p class="groName">グループA</p>
         <p>です。</p>
-        <p>左上のメニューバーから、あなたのグループを選択して、入力ページに進んでください。</p>
+        <p>左上のメニューバーから、上記と同じグループを選択して、入力ページに進んでください。</p>
       </div>
     </div>
     
@@ -368,15 +368,15 @@
         <div class="form-group" id="group-name">
           <p>お名前を入力してください。</p>
           <label for="lname">姓</label>
-          <input type="text" id="lname" class="" placeholder="姓" required>
+          <input type="text" id="lname" class="" placeholder="姓" enterkeyhint="next" required>
           <label for="fname">名</label>
-          <input type="text" id="fname" class="" placeholder="名" required>
+          <input type="text" id="fname" class="" placeholder="名" enterkeyhint="next" required>
         </div>
 
         <!--年齢-->
         <div class="form-group" id="group-year">
           <label>現在の年齢を入力してください。</label>
-          <input type="text" id="year" class="" placeholder="年齢" pattern="^[0-9\uff10-\uff19]+$" inputmode="numeric" required> 歳
+          <input type="text" id="year" class="" placeholder="年齢" pattern="^[0-9\uff10-\uff19]+$" inputmode="numeric" enterkeyhint="next" required> 歳
         </div>
 
         <!--写真-->
@@ -409,6 +409,11 @@
       <div class="confirm-item">
         <div class="confirm-label">送信する写真</div>
         <img id="confirmPhoto" src="" alt="送信写真">
+      </div>
+
+      <div class>
+        <label><input type="checkbox" id="confCheck">確認しました</label>
+        <div id="confMessage"></div>
       </div>
 
       <div class="btn2">
@@ -463,6 +468,8 @@
     const confirmYear = document.getElementById('confirmYear');     //年齢　内容確認
     const confirmPhoto = document.getElementById('confirmPhoto');       //写真　内容確認
 
+    const confCheck = document.getElementById('confCheck');   //確認チェックボックス
+    const confMessage = document.getElementById('confMessage');   //確認注意メッセージ
     const confBtn = document.getElementById('confBtn');     //確認遷移ボタン
     const backBtn = document.getElementById('backBtn');     //修正ボタン
     const submitBtn = document.getElementById('submitBtn');     //送信ボタン
@@ -666,19 +673,26 @@
 
     //修正
     backBtn.addEventListener('click', function() {
+      confCheck.checked = false;
       confirmArea.style.display = 'none';
       inputArea.style.display = 'block';
     });
 
     //送信
     submitBtn.addEventListener('click', function() {
-      const result = '成功';
+      if(!confCheck.checked){
+        confMessage.textContent = '確認しましたにチェックを入れてください';
+        confCheck.scrollIntoView({block:"center"});
+      }else {
+        const result = '成功';
 
-      statusMessage.textContent = '送信中...';
-      statusMessage.style.color = 'black';
-      submitBtn.disabled = true;  //連打防止
+        statusMessage.textContent = '送信中...';
+        statusMessage.style.color = 'black';
+        submitBtn.disabled = true;  //連打防止
+        backBtn.disabled = true;
 
-      saveData(result);
+        saveData(result);
+      }
     });
 
     //リタイアボタン押下処理
@@ -814,6 +828,8 @@
     function onFailure(error) {
       statusMessage.textContent = '送信に失敗しました。　' + error;
       statusMessage.style.color = 'red';
+      submitBtn.disabled = false;
+      backBtn.disabled = false;
     }
 
   </script>
